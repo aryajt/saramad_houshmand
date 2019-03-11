@@ -24,6 +24,9 @@ flutter:
 
   assets:
       - assets/login_logo.png
+      - assets/behpardazan.png
+      - assets/bethemeBehpardazan.png
+
 
   fonts:
     - family: WorkSansSemiBold

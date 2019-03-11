@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:saramad_houshmand/style/theme.dart' as Theme;
 import 'package:saramad_houshmand/utils/bubble_indication_painter.dart';
+import 'package:http/http.dart' as http;
+
+String Email , Name , LName , Username , Password , ConfirmPassword;
+String url = "http://192.168.1.77/test.php";
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key}) : super(key: key);
@@ -21,6 +25,9 @@ class _LoginPageState extends State<LoginPage>
   final FocusNode myFocusNodePassword = FocusNode();
   final FocusNode myFocusNodeEmail = FocusNode();
   final FocusNode myFocusNodeName = FocusNode();
+  final FocusNode myFocusNodeLName = FocusNode();
+  final FocusNode myFocusNodeUsername = FocusNode();
+
 
   TextEditingController loginEmailController = new TextEditingController();
   TextEditingController loginPasswordController = new TextEditingController();
@@ -31,9 +38,12 @@ class _LoginPageState extends State<LoginPage>
 
   TextEditingController signupEmailController = new TextEditingController();
   TextEditingController signupNameController = new TextEditingController();
+  TextEditingController signupLNameController = new TextEditingController();
+  TextEditingController signupUsernameController = new TextEditingController();
   TextEditingController signupPasswordController = new TextEditingController();
-  TextEditingController signupConfirmPasswordController =
-      new TextEditingController();
+  TextEditingController signupConfirmPasswordController = new TextEditingController();
+
+
 
   PageController _pageController;
 
@@ -70,11 +80,11 @@ class _LoginPageState extends State<LoginPage>
               children: <Widget>[
                 Padding(
                   padding: EdgeInsets.only(top: 75.0),
-//                      child: new Image(
-//                          width: 250.0,
-//                          height: 191.0,
-//                          fit: BoxFit.fill,
-//                          image: new AssetImage('assets/img/login_logo.png')),
+                      child: new Image(
+                          width: 645.0,
+                          height: 180.0,
+                          fit: BoxFit.fill,
+                          image: new AssetImage('assets/img/bethemeBehpardazan.png')),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 20.0),
@@ -122,6 +132,8 @@ class _LoginPageState extends State<LoginPage>
     myFocusNodePassword.dispose();
     myFocusNodeEmail.dispose();
     myFocusNodeName.dispose();
+    myFocusNodeLName.dispose();
+    myFocusNodeUsername.dispose();
     _pageController?.dispose();
     super.dispose();
   }
@@ -137,6 +149,13 @@ class _LoginPageState extends State<LoginPage>
 
     _pageController = PageController();
   }
+//  void Input_Validation(BuildContext context , String content){
+//    if((RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(Email)) && Password==ConfirmPassword){
+//      PostData(context, url, content);
+//    }else{
+//      showInSnackBar("ایمیل یا رمز عبور اشتباه است ");
+//    }
+//  }
 
   void showInSnackBar(String value) {
     FocusScope.of(context).requestFocus(new FocusNode());
@@ -150,7 +169,7 @@ class _LoginPageState extends State<LoginPage>
             fontSize: 16.0,
             fontFamily: "WorkSansSemiBold"),
       ),
-      backgroundColor: Colors.blue,
+      backgroundColor: Colors.green,
       duration: Duration(seconds: 3),
     ));
   }
@@ -227,6 +246,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
+                          onChanged: (o)=>setState((){
+                            Email=o;
+                          }),
                           focusNode: myFocusNodeEmailLogin,
                           controller: loginEmailController,
                           keyboardType: TextInputType.emailAddress,
@@ -256,6 +278,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
+                          onChanged: (o)=>setState((){
+                            Password=o;
+                          }),
                           focusNode: myFocusNodePasswordLogin,
                           controller: loginPasswordController,
                           obscureText: _obscureTextLogin,
@@ -329,7 +354,7 @@ class _LoginPageState extends State<LoginPage>
                             fontFamily: "WorkSansBold"),
                       ),
                     ),
-                    onPressed: () => showInSnackBar("ورود")),
+                    onPressed: () => PostData(context , url , "$Email+$Password")),
               ),
             ],
           ),
@@ -345,79 +370,8 @@ class _LoginPageState extends State<LoginPage>
                       fontFamily: "WorkSansMedium"),
                 )),
           ),
-          Padding(
-            padding: EdgeInsets.only(top: 10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: new LinearGradient(
-                        colors: [
-                          Colors.white10,
-                          Colors.white,
-                        ],
-                        begin: const FractionalOffset(0.0, 0.0),
-                        end: const FractionalOffset(1.0, 1.0),
-                        stops: [0.0, 1.0],
-                        tileMode: TileMode.clamp),
-                  ),
-                  width: 100.0,
-                  height: 1.0,
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                  child: Text(
-                    "Or",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                        fontFamily: "WorkSansMedium"),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: new LinearGradient(
-                        colors: [
-                          Colors.white,
-                          Colors.white10,
-                        ],
-                        begin: const FractionalOffset(0.0, 0.0),
-                        end: const FractionalOffset(1.0, 1.0),
-                        stops: [0.0, 1.0],
-                        tileMode: TileMode.clamp),
-                  ),
-                  width: 100.0,
-                  height: 1.0,
-                ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(top: 15.0),
-                child: GestureDetector(
-                  onTap: () => showInSnackBar("ورود با گوگل"),
-                  child: Container(
-                    padding: const EdgeInsets.all(20.0),
-                    decoration: new BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    child: new Icon(
-                      FontAwesomeIcons.google,
-                      color: Color(0xFF0084ff),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 50.0),
-              )
-            ],
-          ),
+
+
         ],
       ),
     );
@@ -447,6 +401,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
+                          onChanged: (o)=>setState((){
+                            Name=o;
+                          }),
                           focusNode: myFocusNodeName,
                           controller: signupNameController,
                           keyboardType: TextInputType.text,
@@ -476,8 +433,11 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                          focusNode: myFocusNodeEmail,
-                          controller: signupEmailController,
+                            onChanged: (o)=>setState((){
+                              LName=o;
+                            }),
+                          focusNode: myFocusNodeLName,
+                          controller: signupLNameController,
                           keyboardType: TextInputType.emailAddress,
                           style: TextStyle(
                               fontFamily: "WorkSansSemiBold",
@@ -504,8 +464,11 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                          focusNode: myFocusNodeEmail,
-                          controller: signupEmailController,
+                          onChanged: (o)=>setState((){
+                            Username=o;
+                          }),
+                          focusNode: myFocusNodeUsername,
+                          controller: signupUsernameController,
                           keyboardType: TextInputType.emailAddress,
                           style: TextStyle(
                               fontFamily: "WorkSansSemiBold",
@@ -531,7 +494,10 @@ class _LoginPageState extends State<LoginPage>
                       Padding(
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
-                        child: TextField(
+                          child: TextField(
+                            onChanged: (o)=>setState((){
+                              Email=o;
+                            }),
                           focusNode: myFocusNodeEmail,
                           controller: signupEmailController,
                           keyboardType: TextInputType.emailAddress,
@@ -560,6 +526,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
+                          onChanged: (o)=>setState((){
+                            Password=o;
+                          }),
                           focusNode: myFocusNodePassword,
                           controller: signupPasswordController,
                           obscureText: _obscureTextSignup,
@@ -596,6 +565,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
+                          onChanged: (o)=>setState((){
+                            Password=o;
+                          }),
                           controller: signupConfirmPasswordController,
                           obscureText: _obscureTextSignupConfirm,
                           style: TextStyle(
@@ -667,7 +639,7 @@ class _LoginPageState extends State<LoginPage>
                             fontFamily: "WorkSansBold"),
                       ),
                     ),
-                    onPressed: () => showInSnackBar("ثبت نام")),
+                    onPressed: () => PostData(context,url,"$Name+$LName+$Username+$Email+$Password+$ConfirmPassword")),
               ),
             ],
           ),
@@ -678,12 +650,12 @@ class _LoginPageState extends State<LoginPage>
 
   void _onSignInButtonPress() {
     _pageController.animateToPage(0,
-        duration: Duration(milliseconds: 400), curve: Curves.elasticIn);
+        duration: Duration(milliseconds: 150), curve: Curves.easeIn);
   }
 
   void _onSignUpButtonPress() {
     _pageController?.animateToPage(1,
-        duration: Duration(milliseconds: 400), curve: Curves.elasticIn);
+        duration: Duration(milliseconds: 150), curve: Curves.easeIn);
   }
 
   void _toggleLogin() {
@@ -704,3 +676,19 @@ class _LoginPageState extends State<LoginPage>
     });
   }
 }
+
+void PostData(BuildContext context , String url , String content) async {
+  http.post(url, body: {
+    "Data": "$content"
+  }).then((response) {
+//    if (!response.body.endsWith(".")) {
+//      _UserId(response.body);
+//      Navigator.push(
+//        context,
+//        MaterialPageRoute(builder: (context) => mainpage.HomePage()),
+//      );
+//    }
+    print("response : ${response.body}");
+  });
+}
+
