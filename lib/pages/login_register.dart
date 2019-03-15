@@ -4,9 +4,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:saramad_houshmand/style/theme.dart' as Theme;
 import 'package:saramad_houshmand/utils/bubble_indication_painter.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'main_page.dart' as mainPage;
+import 'package:flutter/scheduler.dart';
 
-String Email , Name , LName , Username , Password , ConfirmPassword;
-String url = "http://192.168.1.77/test.php";
+String Email, Name, LName, Username, Password, ConfirmPassword;
+String uid = "NotSignedIn";
+String url = "http://192.168.1.77/devices/Login.php";
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key}) : super(key: key);
@@ -28,7 +32,6 @@ class _LoginPageState extends State<LoginPage>
   final FocusNode myFocusNodeLName = FocusNode();
   final FocusNode myFocusNodeUsername = FocusNode();
 
-
   TextEditingController loginEmailController = new TextEditingController();
   TextEditingController loginPasswordController = new TextEditingController();
 
@@ -41,9 +44,8 @@ class _LoginPageState extends State<LoginPage>
   TextEditingController signupLNameController = new TextEditingController();
   TextEditingController signupUsernameController = new TextEditingController();
   TextEditingController signupPasswordController = new TextEditingController();
-  TextEditingController signupConfirmPasswordController = new TextEditingController();
-
-
+  TextEditingController signupConfirmPasswordController =
+      new TextEditingController();
 
   PageController _pageController;
 
@@ -78,16 +80,16 @@ class _LoginPageState extends State<LoginPage>
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
+//                Padding(
+//                  padding: EdgeInsets.only(top: 120.0),
+//                      child: new Image(
+//                          width: 645.0,
+//                          height: 180.0,
+//                          fit: BoxFit.fill,
+//                          image: new AssetImage('assets/img/bethemeBehpardazan.png')),
+//                ),
                 Padding(
-                  padding: EdgeInsets.only(top: 75.0),
-                      child: new Image(
-                          width: 645.0,
-                          height: 180.0,
-                          fit: BoxFit.fill,
-                          image: new AssetImage('assets/img/bethemeBehpardazan.png')),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20.0),
+                  padding: EdgeInsets.only(top: 120.0),
                   child: _buildMenuBar(context),
                 ),
                 Expanded(
@@ -141,21 +143,50 @@ class _LoginPageState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
-
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) => Check_Session());
+    }
+    Check_Session();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-
     _pageController = PageController();
   }
-//  void Input_Validation(BuildContext context , String content){
-//    if((RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(Email)) && Password==ConfirmPassword){
-//      PostData(context, url, content);
-//    }else{
-//      showInSnackBar("ایمیل یا رمز عبور اشتباه است ");
-//    }
-//  }
+
+  void PostData(BuildContext context, String url, String content) async {
+    http.post(url, body: {"Data": "$content"}).then((response) {
+      if (!(response.body == "خطا")) {
+        _UserId(response.body);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => mainPage.MyApp()),
+        );
+      }
+      print("response : ${response.body}");
+    });
+  }
+
+  _UserId(String response) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString("UserId", response);
+    print("UserId:$uid");
+  }
+
+  void Check_Session() async {
+    print("helllloooo");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    uid = (prefs.getString('UserId'));
+    if (!(uid == "NotSignedIn")) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => mainPage.MyApp()),
+      );
+    } else {
+      showInSnackBar("لطفا وارد حساب خود شوید یا ثبت نام کنید");
+    }
+  }
 
   void showInSnackBar(String value) {
     FocusScope.of(context).requestFocus(new FocusNode());
@@ -238,7 +269,7 @@ class _LoginPageState extends State<LoginPage>
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Container(
-                  width: 300.0,
+                  width: 370.0,
                   height: 190.0,
                   child: Column(
                     children: <Widget>[
@@ -246,9 +277,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                          onChanged: (o)=>setState((){
-                            Email=o;
-                          }),
+                          onChanged: (o) => setState(() {
+                                Email = o;
+                              }),
                           focusNode: myFocusNodeEmailLogin,
                           controller: loginEmailController,
                           keyboardType: TextInputType.emailAddress,
@@ -278,9 +309,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                          onChanged: (o)=>setState((){
-                            Password=o;
-                          }),
+                          onChanged: (o) => setState(() {
+                                Password = o;
+                              }),
                           focusNode: myFocusNodePasswordLogin,
                           controller: loginPasswordController,
                           obscureText: _obscureTextLogin,
@@ -331,8 +362,10 @@ class _LoginPageState extends State<LoginPage>
                   ],
                   gradient: new LinearGradient(
                       colors: [
-                        Theme.Colors.loginGradientEnd,
-                        Theme.Colors.loginGradientStart
+                        Color(0xFF1a001a),
+                        Color(0xFF660066)
+//                        Theme.Colors.loginGradientEnd,
+//                        Theme.Colors.loginGradientStart
                       ],
                       begin: const FractionalOffset(0.2, 0.2),
                       end: const FractionalOffset(1.0, 1.0),
@@ -354,7 +387,8 @@ class _LoginPageState extends State<LoginPage>
                             fontFamily: "WorkSansBold"),
                       ),
                     ),
-                    onPressed: () => PostData(context , url , "$Email+$Password")),
+                    onPressed: () =>
+                        PostData(context, url, "$Email+$Password")),
               ),
             ],
           ),
@@ -363,15 +397,13 @@ class _LoginPageState extends State<LoginPage>
             child: FlatButton(
                 onPressed: () {},
                 child: Text(
-                  "فراموشی رمز عبور",
+                  "",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 16.0,
                       fontFamily: "WorkSansMedium"),
                 )),
           ),
-
-
         ],
       ),
     );
@@ -393,7 +425,7 @@ class _LoginPageState extends State<LoginPage>
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Container(
-                  width: 300.0,
+                  width: 370.0,
                   height: 560.0,
                   child: Column(
                     children: <Widget>[
@@ -401,9 +433,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                          onChanged: (o)=>setState((){
-                            Name=o;
-                          }),
+                          onChanged: (o) => setState(() {
+                                Name = o;
+                              }),
                           focusNode: myFocusNodeName,
                           controller: signupNameController,
                           keyboardType: TextInputType.text,
@@ -433,9 +465,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                            onChanged: (o)=>setState((){
-                              LName=o;
-                            }),
+                          onChanged: (o) => setState(() {
+                                LName = o;
+                              }),
                           focusNode: myFocusNodeLName,
                           controller: signupLNameController,
                           keyboardType: TextInputType.emailAddress,
@@ -464,9 +496,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                          onChanged: (o)=>setState((){
-                            Username=o;
-                          }),
+                          onChanged: (o) => setState(() {
+                                Username = o;
+                              }),
                           focusNode: myFocusNodeUsername,
                           controller: signupUsernameController,
                           keyboardType: TextInputType.emailAddress,
@@ -494,10 +526,10 @@ class _LoginPageState extends State<LoginPage>
                       Padding(
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
-                          child: TextField(
-                            onChanged: (o)=>setState((){
-                              Email=o;
-                            }),
+                        child: TextField(
+                          onChanged: (o) => setState(() {
+                                Email = o;
+                              }),
                           focusNode: myFocusNodeEmail,
                           controller: signupEmailController,
                           keyboardType: TextInputType.emailAddress,
@@ -526,9 +558,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                          onChanged: (o)=>setState((){
-                            Password=o;
-                          }),
+                          onChanged: (o) => setState(() {
+                                Password = o;
+                              }),
                           focusNode: myFocusNodePassword,
                           controller: signupPasswordController,
                           obscureText: _obscureTextSignup,
@@ -565,9 +597,9 @@ class _LoginPageState extends State<LoginPage>
                         padding: EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
-                          onChanged: (o)=>setState((){
-                            Password=o;
-                          }),
+                          onChanged: (o) => setState(() {
+                                Password = o;
+                              }),
                           controller: signupConfirmPasswordController,
                           obscureText: _obscureTextSignupConfirm,
                           style: TextStyle(
@@ -616,8 +648,10 @@ class _LoginPageState extends State<LoginPage>
                   ],
                   gradient: new LinearGradient(
                       colors: [
-                        Theme.Colors.loginGradientEnd,
-                        Theme.Colors.loginGradientStart
+                        Color(0xFF1a001a),
+                        Color(0xFF660066)
+//                        Theme.Colors.loginGradientEnd,
+//                        Theme.Colors.loginGradientStart
                       ],
                       begin: const FractionalOffset(0.2, 0.2),
                       end: const FractionalOffset(1.0, 1.0),
@@ -639,7 +673,8 @@ class _LoginPageState extends State<LoginPage>
                             fontFamily: "WorkSansBold"),
                       ),
                     ),
-                    onPressed: () => PostData(context,url,"$Name+$LName+$Username+$Email+$Password+$ConfirmPassword")),
+                    onPressed: () => PostData(context, url,
+                        "$Name+$LName+$Username+$Email+$Password+$ConfirmPassword")),
               ),
             ],
           ),
@@ -676,19 +711,3 @@ class _LoginPageState extends State<LoginPage>
     });
   }
 }
-
-void PostData(BuildContext context , String url , String content) async {
-  http.post(url, body: {
-    "Data": "$content"
-  }).then((response) {
-//    if (!response.body.endsWith(".")) {
-//      _UserId(response.body);
-//      Navigator.push(
-//        context,
-//        MaterialPageRoute(builder: (context) => mainpage.HomePage()),
-//      );
-//    }
-    print("response : ${response.body}");
-  });
-}
-

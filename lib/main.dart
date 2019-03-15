@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ui/login.dart';
+import 'package:saramad_houshmand/pages/login_register.dart';
 
 void main() => runApp(new MyApp());
 

@@ -9,8 +9,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  shared_preferences: ^0.4.3
   cupertino_icons: ^0.1.2
+  qrcode_reader: ^0.4.4
+  mqtt_client: ^3.3.0
+
+
+
+
+
+
 
 dev_dependencies:
   flutter_test:
